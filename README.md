@@ -238,87 +238,11 @@ uvicorn app.main:app --reload
 python -m pytest -q
 ```
 
-<br/>
+## Honest limitations
+- Sandbox only; no real money moves.
+- Red Team attacks go straight to the guard on purpose: they test the firewall itself, not whether
+  a given LLM falls for a prompt injection. The agent panel runs a deliberately naive simulated agent, so the demo is free and repeatable; the guard's decision does not depend on which agent is used.
+- The mandate is stored in memory and the signing key is a server-side secret (a production version
+  would use per-user keys and a database).
 
-## 🔐 Seguridad y reglas del verificador
-
-La seguridad sigue un enfoque **determinista**: el Verificador no usa IA para decidir, aplica reglas fijas en orden.
-
-| Regla | Qué comprueba | Resultado si falla |
-|---|---|---|
-| **Firma** | El HMAC-SHA256 del mandato coincide con sus reglas | ⛔ Bloquear |
-| **Vencimiento** | El mandato no ha expirado | ⛔ Bloquear |
-| **Moneda** | La moneda del pago es la del mandato | ⛔ Bloquear |
-| **Comercio** | El destinatario está en la lista permitida | ⛔ Bloquear |
-| **Tope de monto** | El monto no supera el máximo autorizado | ⛔ Bloquear |
-| **Umbral humano** | El monto supera el nivel de aprobación automática | 🙋 Cola de aprobación |
-
-### Principios destacados
-
-- 🧱 El agente **solo puede pedir pagar**; nunca ejecuta el pago por sí mismo.
-- ✍️ Cualquier cambio en el mandato **invalida la firma**.
-- 🔗 Cada entrada del log **incluye el hash de la anterior**; la UI muestra la integridad de la cadena.
-- 🎯 La decisión **no depende del agente ni del modelo** que se utilice.
-
-<br/>
-
-## 🧪 Red Team y validación
-
-El modo **Red Team** simula un agente totalmente comprometido que ataca directamente al Guard, y agrega un **pago de control** para demostrar que los pagos legítimos no se bloquean.
-
-| # | Ataque simulado | Resultado esperado |
-|---|---|---|
-| 1 | Redirección del destinatario | ⛔ Bloqueado |
-| 2 | Inflado del monto | ⛔ Bloqueado |
-| 3 | Cambio de moneda | ⛔ Bloqueado |
-| 4 | Manipulación del mandato | ⛔ Bloqueado |
-| 5 | Reutilización de un mandato vencido | ⛔ Bloqueado |
-| ✔ | **Pago de control** (legítimo) | ✅ Aprobado |
-
-El panel reporta cuántos ataques se bloquearon y confirma que el pago legítimo sigue pasando.
-
-<br/>
-
-## ⚠️ Limitaciones honestas
-
-- Solo **Sandbox**: no se mueve dinero real.
-- Los ataques del Red Team van **directo al Guard a propósito**: prueban el firewall en sí, no si un LLM concreto cae en una inyección de prompt.
-- El panel del agente usa un agente simulado deliberadamente ingenuo, para que la demo sea gratuita y repetible; la decisión del Guard no depende de qué agente se use.
-- El mandato se guarda **en memoria** y la clave de firma es un secreto del servidor (una versión de producción usaría claves por usuario y una base de datos).
-
-<br/>
-
-## 🧭 Roadmap
-
-- [ ] Persistir mandatos y log de auditoría en una **base de datos**
-- [ ] Usar **claves de firma por usuario** en lugar de un secreto global del servidor
-- [ ] Soportar **múltiples mandatos** y revocación en tiempo real
-- [ ] Notificaciones al humano para la **cola de aprobación**
-- [ ] Integración con agentes reales basados en LLM
-- [ ] Pasar de PayPal Sandbox a un entorno de producción
-
-<br/>
-
-## 👤 Autor
-
-<div align="center">
-
-| Integrante |
-|---|
-| Arévalo Villano, Jaime Manuel |
-
-</div>
-
-<br/>
-
-## 📄 Licencia
-
-Este proyecto es un **proyecto personal** desarrollado con **fines demostrativos e informativos**. Funciona únicamente en entorno **Sandbox** y no procesa dinero real.
-
-<br/>
-
-<div align="center">
-
-**Hecho con Python, PayPal Developer Sandbox y mucho café ☕ por Manuel**
-
-</div>
+Built for the PayPal AI Hackathon.
