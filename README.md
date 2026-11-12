@@ -41,4 +41,4 @@ python -m pytest -q
 - The mandate is stored in memory and the signing key is a server-side secret (a production version
   would use per-user keys and a database).
 
-Built for the PayPal AI Hackathon.
+
